@@ -13,7 +13,7 @@
 	#PLAYER
 	P_posY:		.word		100			#afetada pela gravidade
 	P_posX:		.word		70			#nunca mais sera mudada
-	P_velY		.word		0			#inicialmente parado até receber input
+	P_velY		.word		0			#inicialmente parado atÃ© receber input
 
 
 
@@ -52,7 +52,7 @@ main:
 	
 	
 	#########################################################################
-	#####################Funçoes de desenho auxiliares#######################
+	#####################FunÃ§oes de desenho auxiliares#######################
 	#########################################################################
 	drawpoint:
 	add $t6, $zero, $zero	# zerando lixo de memoria ##
