@@ -26,10 +26,6 @@ O programa é então, de aplicação limitada. Caso ele seja capaz de rodar com 
 O grupo é constituído de quatro pessoas, sendo:
 
 * Pedro Lima - A definir
-* João A. Ribeiro - A definir
+* João A. Ribeiro - Documentação
 * João H. Sousa - Media
 * Yurick Hauschild - Programação
-
-# Material extra
-
-Na pasta vendors/ consta também o Arkamips, uma releitura do Arkanoid implementada por turmas de semestres anteriores. Os devidos créditos são dados nos próprios arquivos.
