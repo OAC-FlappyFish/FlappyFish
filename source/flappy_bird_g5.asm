@@ -19,16 +19,23 @@
 	
 	#PLAYER
 	P_posY:		.word 45			#afetada pela gravidade
-	P_posX:		.word 32			#nunca mais sera mudada
+	P_posX:		.word 20			#nunca mais sera mudada
 	P_velY:		.word 0			#inicialmente parado até receber input
+	
+	P_width:	.word	18		#largura
+	P_height:	.word	11		#altura do peixe
 	
 	P_aceleracao:	.word	2			#aceleracao da gravidade, sempre constante
 	
-	P_force:	.word	-20			#força aplicada qnd receber o input
+	P_force:	.word	-18			#força aplicada qnd receber o input
 	
 	frameCounter:	.word 1				#contar em qual frame está
 	
 	frequenciaForce:	.word	6		#aplicar força a cada 100 frames(teste apenas)
+	
+	flagPerdeu:	.word	0			#ativada qnd houver colisao
+	
+	pontos:		.word 	0			#inicializa pontos
 	
 	#cores
 	
@@ -66,6 +73,7 @@ main:
 		#draw flappy
 		
 		jal drawFlappy
+		
 	
 		#jal drawQuadrado
 	
@@ -78,6 +86,12 @@ main:
 	
 	
 		jal clearScreen		#resetar o display
+		
+		#li $a1,70
+		#li $a2,70
+		#li $a3,15
+		#li $s0,15
+		#jal drawRetangulo
 		
 		
 		lw $a0,P_posX
@@ -100,6 +114,21 @@ main:
 	
 	#procedures
 	
+	
+	incPontos:
+		addi $sp,$sp,-4
+		sw $s0,0($sp)
+		
+		lw $s0,pontos
+		
+		addi $s0,$s0,1
+		
+		sw $s0,pontos
+		
+		lw $s0,0($sp)
+		addi $sp,$sp,4
+		
+		jr $ra
 	
 	applyForce:
 		addi $sp,$sp,-16
@@ -168,7 +197,36 @@ main:
 		
 		add $s2,$s0,$s1		#nova posicao = posicaoantiga + velocidade atual
 		
-		sw $s2,P_posY
+		ble $s2,0,realocarPraZero	#se posicao nova < 0, voltar pra zero
+		
+		lw $s3,P_height
+		lw $s1,bitmap_height
+		sub $s3,$s1,$s3			#s3 = bit_height - p_height
+		
+		bge $s2,$s3,realocarPraBaixo
+		
+		
+		sw $s2,P_posY			#else, sem problemas
+		
+		j ok
+		
+		
+		realocarPraZero:
+		
+		sw $zero,P_posY
+		
+		j ok
+		
+		realocarPraBaixo:
+		
+		sw $s3,P_posY		#botar na posicao mais baixa possivel
+		li $s1,1
+		sw $s1,flagPerdeu	#se colidiu com a parte baixa (chao), setar flag de perdeu pra 1
+		
+		j ok
+			
+		
+		ok:
 		
 		lw $s0,($sp)
 		lw $s1,4($sp)
@@ -238,45 +296,68 @@ main:
 		jr $ra
 	
 	
-	#a0 == x ; a1 == y
-	drawQuadrado:
-		addi $sp,$sp,-12
+	#a0 == cor ; a1 == width ; a2 == height ; a3 == x ; s0 == y
+	drawRetangulo:
+		addi $sp,$sp,-20
 		sw $ra,($sp)
 		sw $a0,4($sp)
 		sw $a1,8($sp)
+		sw $a2,12($sp)
+		sw $s7,16($sp)
 		
-		move $t0,$a0
-		move $t1,$a1
 		
-		#pixels
-		addi $a1,$t0,0
-		addi $a2,$t1,0
+		li $t0,0
+		li $t1,0
+		lw $t2,amarelo_claro
+		move $t3,$a1
+		move $t4,$a2
 		
-		jal drawPixel
+		lw $a1,bitmap_width
+		lw $a2,bitmap_height
 		
+		mul $s7,$a1,$s0
+		
+		add $s7,$s7,$a3
+	
+		lw $a3,bitmap_address
+		
+		sll $s7,$s7,2
+		
+		add $s7,$s7,$a3		#s7 = 4 * (width * y + x) + bit_address
+		
+		
+		
+		
+		loop_x2:
+			beq $t3,$t0,sai_x2
+			li $t1,0
+			loop_y2:
+				beq $t4,$t1,sai_y2
+				
+				mul $t5,$t3,$t0
+				add $t6,$t5,$t1
+				sll $t6,$t6,2
+				
+				add $t7,$s7,$t6		#t7 == endereço pra guardar a word de cor
+				
+				sw $t2,($t7)
+				
+				addi $t1,$t1,1   #inc y
+			j loop_y2
+			sai_y2:
 			
-		#pixels
-		addi $a1,$t0,0
-		addi $a2,$t1,1
-		jal drawPixel
+			addi $t0,$t0,1	#inc x
+		j loop_x2
+		sai_x2:
 		
-			
-						
-		#pixels
-		addi $a1,$t0,1
-		addi $a2,$t1,0
-		jal drawPixel
-			
-		#pixels
-		addi $a1,$t0,1
-		addi $a2,$t1,1
-		jal drawPixel
 		
 				
 		lw $ra,($sp)
 		lw $a0,4($sp)
 		lw $a1,8($sp)
-		addi $sp,$sp,12
+		lw $a2,12($sp)
+		lw $s7,16($sp)
+		addi $sp,$sp,20
 		
 		jr $ra
 	
