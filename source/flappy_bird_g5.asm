@@ -22,8 +22,8 @@
 	P_posX:		.word 20			#nunca mais sera mudada
 	P_velY:		.word 0			#inicialmente parado até receber input
 	
-	P_width:	.word	18		#largura
-	P_height:	.word	11		#altura do peixe
+	P_width:	.word	22		#largura
+	P_height:	.word	13		#altura do peixe
 	
 	P_aceleracao:	.word	2			#aceleracao da gravidade, sempre constante
 	
@@ -79,19 +79,24 @@ main:
 	
 	
 	loop_principal:
-	
+		#limpar a posiçao anterior do peixe
+		
+		lw $a0,azul_fundo
+		lw $a1,P_width
+		lw $a2,P_height
+		lw $a3,P_posX
+		lw $s0,P_posY
+		jal drawRetangulo
+		
+		
 	
 		jal atualizarVelocidade
 		jal atualizarPosicoes
 	
 	
-		jal clearScreen		#resetar o display
+		#jal clearScreen		#resetar o display
 		
-		#li $a1,70
-		#li $a2,70
-		#li $a3,15
-		#li $s0,15
-		#jal drawRetangulo
+		
 		
 		
 		lw $a0,P_posX
@@ -105,6 +110,16 @@ main:
 		naoChamaForce:
 	
 		jal incFrame
+		
+		
+		#delay pra acertar um bom frame rate
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
 	
 	
 	j loop_principal
@@ -298,30 +313,41 @@ main:
 	
 	#a0 == cor ; a1 == width ; a2 == height ; a3 == x ; s0 == y
 	drawRetangulo:
-		addi $sp,$sp,-20
+		addi $sp,$sp,-60
 		sw $ra,($sp)
 		sw $a0,4($sp)
 		sw $a1,8($sp)
 		sw $a2,12($sp)
 		sw $s7,16($sp)
+		sw $s6,20($sp)
+		sw $t0,24($sp)
+		sw $t1,28($sp)
+		sw $t2,32($sp)
+		sw $t3,36($sp)
+		sw $t4,40($sp)
+		sw $t5,44($sp)
+		sw $t6,48($sp)
+		sw $t7,52($sp)
+		sw $a3,56($sp)
 		
 		
 		li $t0,0
 		li $t1,0
-		lw $t2,amarelo_claro
-		move $t3,$a1
-		move $t4,$a2
+		move $t2,$a0		#t2 guarda a cor
+		move $t3,$a1		#t3 == width
+		move $t4,$a2		#t4 == height
+		move $s6,$a3		#s6 = x
 		
 		lw $a1,bitmap_width
 		lw $a2,bitmap_height
 		
 		mul $s7,$a1,$s0
 		
-		add $s7,$s7,$a3
+		add $s7,$s7,$a3		#posicao linear bruta
 	
 		lw $a3,bitmap_address
 		
-		sll $s7,$s7,2
+		sll $s7,$s7,2		#posicao x 4
 		
 		add $s7,$s7,$a3		#s7 = 4 * (width * y + x) + bit_address
 		
@@ -334,11 +360,15 @@ main:
 			loop_y2:
 				beq $t4,$t1,sai_y2
 				
-				mul $t5,$t3,$t0
-				add $t6,$t5,$t1
-				sll $t6,$t6,2
+				add $t6,$t0,$s6		#x para printar
+				add $t7,$t1,$s0		#y para printar
 				
-				add $t7,$s7,$t6		#t7 == endereço pra guardar a word de cor
+				mul $t7,$t7,$a1
+				add $t7,$t6,$t7
+				sll $t7,$t7,2
+				
+				
+				add $t7,$a3,$t7		#t7 == endereço pra guardar a word de cor
 				
 				sw $t2,($t7)
 				
@@ -357,7 +387,17 @@ main:
 		lw $a1,8($sp)
 		lw $a2,12($sp)
 		lw $s7,16($sp)
-		addi $sp,$sp,20
+		lw $s6,20($sp)
+		lw $t0,24($sp)
+		lw $t1,28($sp)
+		lw $t2,32($sp)
+		lw $t3,36($sp)
+		lw $t4,40($sp)
+		lw $t5,44($sp)
+		lw $t6,48($sp)
+		lw $t7,52($sp)
+		lw $a3,56($sp)
+		addi $sp,$sp,60
 		
 		jr $ra
 	
@@ -896,6 +936,156 @@ main:
 			addi $a2,$t1,2
 			jal drawPixel
 			
+		drawAmareloGeral:
+		
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,4
+			li $a2,3
+			addi $a3,$t0,6
+			addi $s0,$t1,3
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,5
+			li $a2,1
+			addi $a3,$t0,8
+			addi $s0,$t1,2
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,1
+			li $a2,6
+			addi $a3,$t0,12
+			addi $s0,$t1,3
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,1
+			li $a2,3
+			addi $a3,$t0,13
+			addi $s0,$t1,6
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,2
+			li $a2,2
+			addi $a3,$t0,6
+			addi $s0,$t1,6
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,2
+			li $a2,3
+			addi $a3,$t0,2
+			addi $s0,$t1,4
+			jal drawRetangulo
+			
+			#drawRetangulo
+			lw $a0,amarelo_geral
+			li $a1,1
+			li $a2,3
+			addi $a3,$t0,5
+			addi $s0,$t1,4
+			jal drawRetangulo
+			
+			
+			#pixels
+			addi $a1,$t0,14
+			addi $a2,$t1,6
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,15
+			addi $a2,$t1,6
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,15
+			addi $a2,$t1,5
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,15
+			addi $a2,$t1,4
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,16
+			addi $a2,$t1,6
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,16
+			addi $a2,$t1,5
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,16
+			addi $a2,$t1,4
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,15
+			addi $a2,$t1,4
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,15
+			addi $a2,$t1,3
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,10
+			addi $a2,$t1,8
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,10
+			addi $a2,$t1,3
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,1
+			addi $a2,$t1,3
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,2
+			addi $a2,$t1,3
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,1
+			addi $a2,$t1,2
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,2
+			addi $a2,$t1,2
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,2
+			addi $a2,$t1,4
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,3
+			addi $a2,$t1,4
+			jal drawPixel
+			
+			#pixels
+			addi $a1,$t0,2
+			addi $a2,$t1,7
+			jal drawPixel
+			
+			
 			
 			
 		lw $ra,($sp)
@@ -905,6 +1095,29 @@ main:
 		
 		jr $ra
 	
+	
+	#wait some time
+	wait:
+		add		$sp, $sp, -8
+		sw		$ra, 0($sp)
+		sw		$t0, 4($sp)
+		add		$ra, $zero, $zero
+		addi	$t0, $zero, 9000
+
+		## 50000
+		## 100000
+	
+	wait_loop:		
+		beq		$ra, $t0, wait_loop_end
+		addi	$ra, $ra, 1		# i++
+		j		wait_loop
+		
+	wait_loop_end:
+		lw		$ra, 0($sp)
+		lw		$t0, 4($sp)
+		add		$sp, $sp, 4
+		jr		$ra
+		
 	
 	
 	#clear screen com a cor do fundo padrao
