@@ -37,6 +37,20 @@
 	
 	pontos:		.word 	0			#inicializa pontos
 	
+	
+	#obstaculo
+	tiposDeObstaculos:	.word	0,1,2,3,4
+	alturaDoTipo:		.word	15,30,45,60,75
+	
+	velObstaculos:		.word	-2
+	obstaculosWidth:	.word	15
+	obstaculosCor:		.word	0x009933
+	
+	obstaculo1:		.word	1,0,40		#presente	||	tipo	||	pos_x
+	obstaculo2:		.word	1,4,90		#presente	||	tipo	||	pos_x
+	
+	obstaculoInativo:	.word	1
+	deveFazerSpawn:		.word	1
 	#cores
 	
 	
@@ -88,21 +102,24 @@ main:
 		lw $s0,P_posY
 		jal drawRetangulo
 		
+		jal clearObstaculos
 		
 	
 		jal atualizarVelocidade
 		jal atualizarPosicoes
-	
+		jal atualizarObstaculos
+		
 	
 		#jal clearScreen		#resetar o display
 		
 		
 		
-		
+		#draws
 		lw $a0,P_posX
 		lw $a1,P_posY
-		#draw flappy
 		jal drawFlappy
+		
+		jal drawObstaculos
 		
 		lw $t7,frameCounter			#registrador nao guardado na pilha!!!
 		bge $t7,18,naoChamaForce
@@ -128,6 +145,286 @@ main:
 	j exit
 	
 	#procedures
+	
+	
+	clearObstaculos:
+		addi $sp,$sp,-40
+		sw $s0,0($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		sw $t0,16($sp)
+		sw $t1,20($sp)
+		sw $t2,24($sp)
+		sw $t3,28($sp)
+		sw $t4,32($sp)
+		sw $ra,36($sp)
+		
+		la $s1,obstaculo1	#s1 == obs1
+		la $s2,obstaculo2	#s2 == obs2
+		
+		# presente	||	tipo	||	pos_x
+		#verificar atividade
+		
+		#desenho do 1
+		
+		la $t3,tiposDeObstaculos
+		la $t4,alturaDoTipo
+		
+		lw $s0,0($s1)		#s0 == obs1 presente
+		
+		beq $s0,$zero,naoDesenha1_2
+		
+		#desenha1
+		lw $t0,4($s1)	#tipo em t0
+		sll $t0,$t0,2	#mult o tipo por 4 -> endereçamento
+		
+		add $t0,$t4,$t0		#end final
+		
+		lw $t0,($t0)		#t0 recebe a altura do obstaculo
+		
+		lw $t1,obstaculosWidth
+		lw $t2,azul_fundo
+		lw $t3,8($s1)		#t3 == posX
+		
+		lw $t4,bitmap_height
+		
+		sub $t4,$t4,$t0		#t4 recebe posicao y
+		
+		#arrumar argumentos para o desenho do obstaculo
+		move $a0,$t2
+		move $a1,$t1
+		move $a2,$t0
+		move $a3,$t3
+		move $s0,$t4
+		
+		jal drawRetangulo
+		
+		
+		
+		
+		naoDesenha1_2:
+		
+		
+		
+		#desenho do 2
+		
+		la $t3,tiposDeObstaculos
+		la $t4,alturaDoTipo
+		
+		lw $s0,0($s2)		#s0 == obs2 presente
+		
+		beq $s0,$zero,naoDesenha2_2
+		
+		
+		#desenha2
+		lw $t0,4($s2)	#tipo em t0
+		sll $t0,$t0,2	#mult o tipo por 4 -> endereçamento
+		
+		add $t0,$t4,$t0		#end final
+		
+		lw $t0,($t0)		#t0 recebe a altura do obstaculo
+		
+		lw $t1,obstaculosWidth
+		lw $t2,azul_fundo
+		lw $t3,8($s2)		#t3 == posX
+		
+		lw $t4,bitmap_height
+		
+		sub $t4,$t4,$t0		#t4 recebe posicao y
+		
+		#arrumar argumentos para o desenho do obstaculo
+		move $a0,$t2
+		move $a1,$t1
+		move $a2,$t0
+		move $a3,$t3
+		move $s0,$t4
+		
+		jal drawRetangulo
+		
+		
+		
+		
+		
+		naoDesenha2_2:
+		
+		
+		
+		lw $s0,0($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		lw $t0,16($sp)
+		lw $t1,20($sp)
+		lw $t2,24($sp)
+		lw $t3,28($sp)
+		lw $t4,32($sp)
+		lw $ra,36($sp)
+		addi $sp,$sp,40
+		
+		jr $ra
+	
+	
+	atualizarObstaculos:
+		addi $sp,$sp,-16
+		sw $s0,($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		
+		lw $s0,velObstaculos
+		
+		#obj1
+		
+		la $s1,obstaculo1
+		
+		lw $s2,8($s1)		#posicao de obs1
+		
+		add $s2,$s2,$s0		#incrementa posicao
+		
+		sw $s2,8($s1)		#guardar posicao
+		
+		
+		
+		#obj2
+		
+		la $s1,obstaculo2
+		
+		lw $s2,8($s1)		#posicao de obs1
+		
+		add $s2,$s2,$s0		#incrementa posicao
+		
+		sw $s2,8($s1)		#guardar posicao
+		
+		
+		
+		lw $s0,($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		addi $sp,$sp,16
+		
+		
+		
+		jr $ra
+		
+	
+	drawObstaculos:
+		addi $sp,$sp,-40
+		sw $s0,0($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		sw $t0,16($sp)
+		sw $t1,20($sp)
+		sw $t2,24($sp)
+		sw $t3,28($sp)
+		sw $t4,32($sp)
+		sw $ra,36($sp)
+		
+		la $s1,obstaculo1	#s1 == obs1
+		la $s2,obstaculo2	#s2 == obs2
+		
+		# presente	||	tipo	||	pos_x
+		#verificar atividade
+		
+		#desenho do 1
+		
+		la $t3,tiposDeObstaculos
+		la $t4,alturaDoTipo
+		
+		lw $s0,0($s1)		#s0 == obs1 presente
+		
+		beq $s0,$zero,naoDesenha1
+		
+		#desenha1
+		lw $t0,4($s1)	#tipo em t0
+		sll $t0,$t0,2	#mult o tipo por 4 -> endereçamento
+		
+		add $t0,$t4,$t0		#end final
+		
+		lw $t0,($t0)		#t0 recebe a altura do obstaculo
+		
+		lw $t1,obstaculosWidth
+		lw $t2,obstaculosCor
+		lw $t3,8($s1)		#t3 == posX
+		
+		lw $t4,bitmap_height
+		
+		sub $t4,$t4,$t0		#t4 recebe posicao y
+		
+		#arrumar argumentos para o desenho do obstaculo
+		move $a0,$t2
+		move $a1,$t1
+		move $a2,$t0
+		move $a3,$t3
+		move $s0,$t4
+		
+		jal drawRetangulo
+		
+		
+		
+		
+		naoDesenha1:
+		
+		
+		
+		#desenho do 2
+		
+		la $t3,tiposDeObstaculos
+		la $t4,alturaDoTipo
+		
+		lw $s0,0($s2)		#s0 == obs2 presente
+		
+		beq $s0,$zero,naoDesenha2
+		
+		
+		#desenha2
+		lw $t0,4($s2)	#tipo em t0
+		sll $t0,$t0,2	#mult o tipo por 4 -> endereçamento
+		
+		add $t0,$t4,$t0		#end final
+		
+		lw $t0,($t0)		#t0 recebe a altura do obstaculo
+		
+		lw $t1,obstaculosWidth
+		lw $t2,obstaculosCor
+		lw $t3,8($s2)		#t3 == posX
+		
+		lw $t4,bitmap_height
+		
+		sub $t4,$t4,$t0		#t4 recebe posicao y
+		
+		#arrumar argumentos para o desenho do obstaculo
+		move $a0,$t2
+		move $a1,$t1
+		move $a2,$t0
+		move $a3,$t3
+		move $s0,$t4
+		
+		jal drawRetangulo
+		
+		
+		
+		
+		
+		naoDesenha2:
+		
+		
+		
+		lw $s0,0($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		lw $t0,16($sp)
+		lw $t1,20($sp)
+		lw $t2,24($sp)
+		lw $t3,28($sp)
+		lw $t4,32($sp)
+		lw $ra,36($sp)
+		addi $sp,$sp,40
+		
+		jr $ra
 	
 	
 	incPontos:
