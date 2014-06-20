@@ -8,9 +8,9 @@
 
 .data
 	# VARIAVEIS DE GERENCIAMENTO DO DISPLAY
-	bitmap_address: .word 0x10040000
-	bitmap_width:   .word 128
-	bitmap_height:  .word 128
+	bitmap_address: .word 0xff000000
+	bitmap_width:   .word 320
+	bitmap_height:  .word 240
 	
 	nl:	.asciiz "\n"
 
@@ -25,7 +25,7 @@
 	P_width:	.word	22		#largura
 	P_height:	.word	12		#altura do peixe
 	
-	P_aceleracao:	.word	3			#aceleracao da gravidade, sempre constante
+	P_aceleracao:	.word	0			#aceleracao da gravidade, sempre constante
 	
 	P_force:	.word	-15			#força aplicada qnd receber o input
 	
@@ -91,7 +91,8 @@
 main:
 	
 	init:	
-		jal clearScreen
+		j CLS_Pedreiro
+		#jal clearScreen2
 		
 		
 		li $t0,0
@@ -113,7 +114,7 @@ main:
 		sw $zero,flagPerdeu
 		
 		la $s1,obstaculo1
-		la $s2,obstaculo2
+		la $s2,obstaculo2 
 		
 		sw $zero,0($s1)
 		sw $zero,4($s1)
@@ -127,10 +128,10 @@ main:
 	
 	
 	telaPerdeu:
-		jal clearScreen
+		jal clearScreen2
 		
 		
-		jal verificarInputSpace
+		#jal verificarInputSpace
 		
 		bne $v0,$zero,init
 		
@@ -167,7 +168,7 @@ main:
 		
 		
 		#handle de inputs
-		jal verificarInput
+		#jal verificarInput
 		
 		#verificar colisao
 		jal verificarColisao
@@ -1072,7 +1073,9 @@ main:
 		
 		
 		lw $t0,bitmap_width
-		mul $t1,$t0,$a2		#t1 = width * y
+		mult $t0,$a2		#t1 = width * y
+		mflo $t1
+		
 		add $t2,$t1,$a1		#t2 = (width * y) + x
 		sll $t2,$t2,2		#t2 = 4 * ((width * y) + x)
 		lw $t3,bitmap_address
@@ -1123,13 +1126,14 @@ main:
 		lw $a1,bitmap_width
 		lw $a2,bitmap_height
 		
-		mul $s7,$a1,$s0
+		mult $a1,$s0
+		mflo $s7
 		
 		add $s7,$s7,$a3		#posicao linear bruta
 	
 		lw $a3,bitmap_address
 		
-		sll $s7,$s7,2		#posicao x 4
+		#sll $s7,$s7,2		#posicao x 4
 		
 		add $s7,$s7,$a3		#s7 = 4 * (width * y + x) + bit_address
 		
@@ -1145,14 +1149,15 @@ main:
 				add $t6,$t0,$s6		#x para printar
 				add $t7,$t1,$s0		#y para printar
 				
-				mul $t7,$t7,$a1
+				mult $t7,$a1
+				mflo $t7
 				add $t7,$t6,$t7
-				sll $t7,$t7,2
+				#sll $t7,$t7,2
 				
 				
 				add $t7,$a3,$t7		#t7 == endereço pra guardar a word de cor
 				
-				sw $t2,($t7)
+				sb $t2,($t7)
 				
 				addi $t1,$t1,1   #inc y
 			j loop_y2
@@ -1925,7 +1930,9 @@ main:
 			loop_y:
 				beq $t4,$t1,sai_y
 				
-				mul $t5,$t3,$t0
+				mult $t3,$t0
+				mflo $t5
+				
 				add $t6,$t5,$t1
 				sll $t6,$t6,2
 				
@@ -1994,9 +2001,47 @@ main:
 			
 		
 		
+	clearScreen2:
+		addi $sp,$sp,-24
+		sw $ra,0($sp)
+		sw $a0,4($sp)
+		sw $a1,8($sp)
+		sw $a2,12($sp)
+		sw $a3,16($sp)
+		sw $s0,20($sp)
+		#a0 == cor ; a1 == width ; a2 == height ; a3 == x ; s0 == y
 		
-	
-	
+		lw $a0,azul_fundo
+		lw $a1,bitmap_width
+		lw $a2,bitmap_height
+		li $a3,0
+		li $s0,0
+		
+		jal drawRetangulo
+		
+		lw $ra,0($sp)
+		lw $a0,4($sp)
+		lw $a1,8($sp)
+		lw $a2,12($sp)
+		lw $a3,16($sp)
+		lw $s0,20($sp)
+		addi $sp,$sp,24
+		
+		jr $ra
+		
+		
 	exit:
 		li $v0,10
 		syscall
+
+CLS_Pedreiro:
+	lui $t0, 0xFF00
+	la $t1, 0xFF012C00
+	
+	beq $t0, $t1, END_CLS_Pedreiro
+	sb $t2, 0($t0)
+	addi $t0, $t0, 1
+	j CLS_Pedreiro
+END_CLS_Pedreiro:
+	fim: j fim
+	

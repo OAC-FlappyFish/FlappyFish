@@ -8,7 +8,7 @@
 
 .data
 	# VARIAVEIS DE GERENCIAMENTO DO DISPLAY
-	bitmap_address: .word 0x10040000
+	bitmap_address: .word 0xff000000
 	bitmap_width:   .word 128
 	bitmap_height:  .word 128
 	
@@ -23,11 +23,11 @@
 	P_velY:		.word 0			#inicialmente parado até receber input
 	
 	P_width:	.word	22		#largura
-	P_height:	.word	12		#altura do peixe
+	P_height:	.word	13		#altura do peixe
 	
-	P_aceleracao:	.word	3			#aceleracao da gravidade, sempre constante
+	P_aceleracao:	.word	2			#aceleracao da gravidade, sempre constante
 	
-	P_force:	.word	-15			#força aplicada qnd receber o input
+	P_force:	.word	-18			#força aplicada qnd receber o input
 	
 	frameCounter:	.word 1				#contar em qual frame está
 	
@@ -42,7 +42,7 @@
 	tiposDeObstaculos:	.word	0,1,2,3,4
 	alturaDoTipo:		.word	15,30,45,60,75
 	
-	velObstaculos:		.word	-10
+	velObstaculos:		.word	-7
 	obstaculosWidth:	.word	15
 	obstaculosCor:		.word	0x009933
 	
@@ -52,19 +52,11 @@
 	obstaculoInativo:	.word	1
 	deveFazerSpawn:		.word	1
 	
-	gapHeight:		.word	65
+	gapHeight:		.word	26
 	
 	posUltimoSpawn:		.word	0
 	
 	intervaloEntreSpawns:	.word	15
-	
-	
-	#inputs
-	bufferReady:	.word	0xffff0000
-	bufferInput:	.word	0xffff0004
-	teclaSpace:	.word	0x00000020
-	
-	
 	
 	#cores
 	
@@ -90,57 +82,21 @@
 
 main:
 	
-	init:	
+	init:
+		addi $sp,$sp,-4
+		sw $ra,($sp)
+		
 		jal clearScreen
 		
+		lw $a0,P_posX
+		lw $a1,P_posY
 		
-		li $t0,0
-		li $t1,1
+		#draw flappy
 		
-		sw $t1,deveFazerSpawn
-		sw $t1,obstaculoInativo
+		jal drawFlappy
 		
-		sw $zero,pontos
-		sw $t1,frameCounter
-		
-		li $t0,45
-		li $t1,20
-		
-		sw $t0,P_posY
-		sw $t1,P_posX
-		sw $zero,P_velY
-		
-		sw $zero,flagPerdeu
-		
-		la $s1,obstaculo1
-		la $s2,obstaculo2
-		
-		sw $zero,0($s1)
-		sw $zero,4($s1)
-		sw $zero,8($s1)
-		
-		sw $zero,0($s2)
-		sw $zero,4($s2)
-		sw $zero,8($s2)
-		
-		j loop_principal
 	
-	
-	telaPerdeu:
-		jal clearScreen
-		
-		
-		jal verificarInputSpace
-		
-		bne $v0,$zero,init
-		
-		
-		
-		jal wait
-		jal wait
-		jal wait
-	
-		j telaPerdeu
+		#jal drawQuadrado
 	
 	
 	loop_principal:
@@ -165,21 +121,6 @@ main:
 	
 		#jal clearScreen		#resetar o display
 		
-		
-		#handle de inputs
-		jal verificarInput
-		
-		#verificar colisao
-		jal verificarColisao
-		
-		
-		
-		
-		#verificar se já perdeu
-		lw $t0,flagPerdeu
-		bne $t0,$zero,telaPerdeu
-		
-		
 		#spawns
 		jal destruirSpawns
 		jal fazerSpawns
@@ -194,6 +135,15 @@ main:
 		li $a0,1
 		jal drawObstaculos
 		
+		lw $t7,frameCounter			#registrador nao guardado na pilha!!!
+		
+		#trocar esse beq que nao tem!!!
+		# t7 >= 18 ||  contrario: t7 < 18
+		
+		slti $t7,$t7,18
+		beq $t7,$zero,naoChamaForce
+		jal applyForce
+		naoChamaForce:
 	
 		jal incFrame
 		
@@ -201,9 +151,15 @@ main:
 		#delay pra acertar um bom frame rate
 		jal wait
 		jal wait
-		
-		
-		
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
 	
 	
 	j loop_principal
@@ -213,234 +169,6 @@ main:
 	
 	#procedures
 	
-	#nao recebe nada, se for espaco retorna 1 em v0
-	verificarInputSpace:
-		addi $sp,$sp,-20
-		sw $s0,($sp)
-		sw $s1,4($sp)
-		sw $s2,8($sp)
-		sw $s3,12($sp)
-		sw $ra,16($sp)
-		
-		
-		
-		
-		lw $s0,bufferInput
-		lw $s1,teclaSpace
-		
-		lw $s2,($s0)
-		
-		
-		beq $s2,$s1,inputCorreto2
-		j inputNaoCorreto2
-		
-		inputCorreto2:
-		li $v0,1
-		sw $zero,($s0)
-		
-		j out2
-		
-		inputNaoCorreto2:
-		li $v0,0
-		
-		j out2
-		
-		out2:
-		lw $s0,($sp)
-		lw $s1,4($sp)
-		lw $s2,8($sp)
-		lw $s3,12($sp)
-		lw $ra,16($sp)
-		addi $sp,$sp,20
-		
-		
-		
-		jr $ra
-	
-	
-	verificarColisao:
-		addi $sp,$sp,-36
-		sw $s0,($sp)
-		sw $s1,4($sp)
-		sw $s2,8($sp)
-		sw $s3,12($sp)
-		sw $t0,16($sp)
-		sw $t1,20($sp)
-		sw $t2,24($sp)
-		sw $t3,28($sp)
-		sw $ra,32($sp)
-		
-		
-		#pegar variaveis do peixe
-		lw $a0,P_posX
-		lw $a1,P_posY
-		lw $a2,P_width
-		lw $a3,P_height
-		
-		#pegar do obstaculo 1
-		la $s1,obstaculo1
-		
-		lw $t0,8($s1)		#pos x
-		li $t1,0
-		lw $t2,obstaculosWidth
-		
-		#achar altura
-		lw $t3,4($s1)
-		la $s3,alturaDoTipo
-		sll $t3,$t3,2
-		add $t3,$t3,$s3
-		
-		lw $t3,($t3)
-		move $t4,$t3
-		
-		lw $s3,bitmap_height
-		lw $s2,gapHeight
-		
-		add $s2,$s2,$t3
-		
-		
-		sub $s3,$s3,$s2
-		
-		move $t3,$s3
-		
-		#para o flappy x top do obstaculo 1
-		jal collided_rect
-		bne $zero,$v0,colidiu
-		
-		lw $s3,bitmap_height
-		lw $s2,gapHeight
-		
-		add $s2,$s2,$t3
-		
-		move $t1,$s2
-		
-		
-		move $t3,$t4
-		
-		jal collided_rect
-		bne $zero,$v0,colidiu
-		
-		
-		
-		
-		
-		
-		#pegar do obstaculo 2
-		la $s1,obstaculo2
-		
-		lw $t0,8($s1)		#pos x
-		li $t1,0
-		lw $t2,obstaculosWidth
-		
-		#achar altura
-		lw $t3,4($s1)
-		la $s3,alturaDoTipo
-		sll $t3,$t3,2
-		add $t3,$t3,$s3
-		
-		lw $t3,($t3)
-		move $t4,$t3
-		
-		lw $s3,bitmap_height
-		lw $s2,gapHeight
-		
-		add $s2,$s2,$t3
-		
-		
-		sub $s3,$s3,$s2
-		
-		move $t3,$s3
-		
-		#para o flappy x top do obstaculo 1
-		jal collided_rect
-		bne $zero,$v0,colidiu
-		
-		lw $s3,bitmap_height
-		lw $s2,gapHeight
-		
-		add $s2,$s2,$t3
-		
-		move $t1,$s2
-		
-		
-		move $t3,$t4
-		
-		jal collided_rect
-		bne $zero,$v0,colidiu
-		
-		
-		
-		j sair
-		
-		colidiu:
-			li $t0,1
-			sw $t0,flagPerdeu
-			
-		
-		sair:
-		lw $s0,($sp)
-		lw $s1,4($sp)
-		lw $s2,8($sp)
-		lw $s3,12($sp)
-		lw $t0,16($sp)
-		lw $t1,20($sp)
-		lw $t2,24($sp)
-		lw $t3,28($sp)
-		lw $ra,32($sp)
-		addi $sp,$sp,36
-		
-		
-		
-		jr $ra
-		
-	
-	#void void - verifica se houve o input, se sim chama o apply force
-	verificarInput:
-		addi $sp,$sp,-20
-		sw $s0,($sp)
-		sw $s1,4($sp)
-		sw $s2,8($sp)
-		sw $s3,12($sp)
-		sw $ra,16($sp)
-		
-		
-		
-		
-		lw $s0,bufferInput
-		lw $s1,teclaSpace
-		
-		lw $s2,($s0)
-		
-		
-		beq $s2,$s1,inputCorreto
-		j inputNaoCorreto
-		
-		inputCorreto:
-		jal applyForce
-		sw $zero,($s0)
-		
-		j out
-		
-		inputNaoCorreto:
-		
-		
-		j out
-		
-		out:
-		lw $s0,($sp)
-		lw $s1,4($sp)
-		lw $s2,8($sp)
-		lw $s3,12($sp)
-		lw $ra,16($sp)
-		addi $sp,$sp,20
-		
-		
-		
-		jr $ra
-	
-	
-	#procedimento void void que pega dados sobre os spwans em memoria e cria um novo spawn presente  
-	#num tipo random e posicao inicial 
 	fazerSpawns:
 		addi $sp,$sp,-36
 		sw $s0,($sp)
@@ -489,7 +217,7 @@ main:
 		la $s1,obstaculo2
 		
 		li $t0,1		#presente
-		li $t1,2		#tipo
+		li $t1,4		#tipo
 		lw $t2,bitmap_width	#posicao x
 		
 		sw $t0,0($s1)
@@ -515,7 +243,7 @@ main:
 		
 		jr $ra
 		
-	#procedure void void que verifica a posicao dos spawns e destroi se já tiver saido da tela
+		
 	destruirSpawns:
 		addi $sp,$sp,-32
 		sw $s0,($sp)
@@ -572,7 +300,7 @@ main:
 		
 		jr $ra
 	
-	## void void para atualizar o estado dos spawns, nao utilizado!!!
+	
 	atualizarFlagsSpawn:
 		addi $sp,$sp,-32
 		sw $s0,($sp)
@@ -653,7 +381,7 @@ main:
 		
 		jr $ra
 	
-	#verifica posicao e velocidade dos canos e atualiza suas posicoes a cada frame
+	
 	atualizarObstaculos:
 		addi $sp,$sp,-16
 		sw $s0,($sp)
@@ -697,8 +425,7 @@ main:
 		
 		jr $ra
 		
-	#desenha canos de acordo com dados em memoria de posicao  e outras coisas
-	#retorna void
+	
 	#recebe a0:		a0 == 0 indica clear	||| 	a0 == 1 indica draw
 	drawObstaculos:
 		addi $sp,$sp,-44
@@ -913,7 +640,7 @@ main:
 		
 		jr $ra
 	
-	#void void - aumenta o contador de pontos e atualiza os pontos em memoria
+	
 	incPontos:
 		addi $sp,$sp,-4
 		sw $s0,0($sp)
@@ -929,7 +656,6 @@ main:
 		
 		jr $ra
 	
-	#void void - aplica força ao receber input de pulo do flappy
 	applyForce:
 		addi $sp,$sp,-16
 		sw $s0,($sp)
@@ -937,7 +663,14 @@ main:
 		sw $s2,8($sp)
 		sw $s3,12($sp)
 		
-	
+		
+		lw $s3,frameCounter
+		lw $s2,frequenciaForce
+		div $s3,$s2
+		
+		mfhi $s1
+		
+		bne $s1,0,naoAplicar
 		
 		lw $s0,P_velY
 		lw $s1,P_force
@@ -948,6 +681,7 @@ main:
 		
 		
 		
+		naoAplicar:
 		
 		lw $s0,($sp)
 		lw $s1,4($sp)
@@ -959,7 +693,7 @@ main:
 		
 		jr $ra
 	
-	#void void - incrementa contador de frames em memoria, todo frame
+	
 	incFrame:
 		addi $sp,$sp,-4
 		sw $s0,0($sp)
@@ -977,8 +711,6 @@ main:
 		
 		jr $ra
 	
-	#void void - atualiza posicao do flappy todo frame de acordo com a velocidade dele
-	#e ajusta posicao se esta ficar fora da tela!
 	atualizarPosicoes:
 		addi $sp,$sp,-16
 		sw $s0,($sp)
@@ -997,8 +729,12 @@ main:
 		lw $s1,bitmap_height
 		sub $s3,$s1,$s3			#s3 = bit_height - p_height
 		
-		bge $s2,$s3,realocarPraBaixo
 		
+		#trocar isso!!!
+		#bge $s2,$s3,realocarPraBaixo
+		
+		slt $s0,$s2,$s3
+		beq $zero,$s0,realocarPraBaixo
 		
 		sw $s2,P_posY			#else, sem problemas
 		
@@ -1030,7 +766,6 @@ main:
 		
 		jr $ra
 	
-	#void void - aplica gravidade no flappy
 	atualizarVelocidade:
 		addi $sp,$sp,-16
 		sw $s0,($sp)
@@ -1054,9 +789,7 @@ main:
 		addi $sp,$sp,16
 		
 		jr $ra
-		
-	#desenha pixel com os argumentos dados	
-	#retorna void
+	
 	#a0 == cor ||  a1 == x  || a2 == y
 	drawPixel:
 		addi $sp,$sp,-36
@@ -1072,7 +805,8 @@ main:
 		
 		
 		lw $t0,bitmap_width
-		mul $t1,$t0,$a2		#t1 = width * y
+		mult $t0,$a2		#t1 = width * y
+		mflo $t1
 		add $t2,$t1,$a1		#t2 = (width * y) + x
 		sll $t2,$t2,2		#t2 = 4 * ((width * y) + x)
 		lw $t3,bitmap_address
@@ -1092,7 +826,7 @@ main:
 		
 		jr $ra
 	
-	#retorna void, desenha retangulo a partir desses argumentos
+	
 	#a0 == cor ; a1 == width ; a2 == height ; a3 == x ; s0 == y
 	drawRetangulo:
 		addi $sp,$sp,-60
@@ -1123,7 +857,8 @@ main:
 		lw $a1,bitmap_width
 		lw $a2,bitmap_height
 		
-		mul $s7,$a1,$s0
+		mult $a1,$s0
+		mflo $s7
 		
 		add $s7,$s7,$a3		#posicao linear bruta
 	
@@ -1145,7 +880,9 @@ main:
 				add $t6,$t0,$s6		#x para printar
 				add $t7,$t1,$s0		#y para printar
 				
-				mul $t7,$t7,$a1
+				mult $t7,$a1
+				mflo $t7
+				
 				add $t7,$t6,$t7
 				sll $t7,$t7,2
 				
@@ -1184,8 +921,6 @@ main:
 		jr $ra
 	
 	
-	#desenha flappy pixel a pixel a partir da posicao
-	#retorna void
 	#a0 == x ; a1 == y
 	drawFlappy:
 		addi $sp,$sp,-12
@@ -1879,7 +1614,7 @@ main:
 		
 		jr $ra
 	
-	#void void
+	
 	#wait some time
 	wait:
 		add		$sp, $sp, -8
@@ -1903,7 +1638,7 @@ main:
 		jr		$ra
 		
 	
-	#void void
+	
 	#clear screen com a cor do fundo padrao
 	clearScreen:
 		#t0 = x, t1 = y
@@ -1925,7 +1660,9 @@ main:
 			loop_y:
 				beq $t4,$t1,sai_y
 				
-				mul $t5,$t3,$t0
+				mult $t3,$t0
+				mflo $t5
+				
 				add $t6,$t5,$t1
 				sll $t6,$t6,2
 				
@@ -1945,56 +1682,6 @@ main:
 		lw $ra,4($sp)
 		
 		jr $ra
-		
-
-	# Arguments:
-	# $a0 x position of the 1st rectangle
-	# $a1 y position of the 1st rectangle
-	# $a2 w of the 1st rectangle
-	# $a3 h of the 1st rectangle
-	# $t0 x position of the 2nd rectangle
-	# $t1 y position of the 2nd rectangle
-	# $t2 w of the 2nd rectangle
-	# $t3 h of the 2nd rectangle
-	
-
-	# 
-	# Returns:
-	# $v0 0 if not collided, 1 if collided
-	#
-
-	collided_rect:
-
-		
-			add		$v0, $t0, $t2	# x1 < x2 + w2 which means...
-			slt		$v0, $a0, $v0	# a0 < t0 + t2
-			beq		$v0, $zero, collided_rect_false
-
-			add		$v0, $a0, $a2	# x2 < x1 + w1 which means...
-			slt		$v0, $t0, $v0	# t0 < a0 + a2
-			beq		$v0, $zero, collided_rect_false
-
-			add		$v0, $t1, $t3	# y1 < y2 + h2 which means...
-			slt		$v0, $a1, $v0	# a1 < t1 + t3
-			beq		$v0, $zero, collided_rect_false
-
-			add		$v0, $a1, $a3	# y2 < y1 + h1 which means...
-			slt		$v0, $t1, $v0	# t1 < a1 + a3
-			beq		$v0, $zero, collided_rect_false
-		
-	collided_rect_true:
-			li		$v0, 1
-			j		collided_rect_end
-		
-	collided_rect_false:
-			li		$v0, 0
-
-	collided_rect_end:		
-			jr		$ra		
-			
-		
-		
-		
 	
 	
 	exit:
