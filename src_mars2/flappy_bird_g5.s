@@ -7,6 +7,34 @@
 
 
 .data
+
+	#display game over
+	game: .byte 
+	0x00,0x00,0x00,0x00,0x71,0x00,0x00,0x00,0x00,0x71,0x00,0x00,0x71,0x00,0x00,0x71,0x00,0x00,0x00,0x00,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x71,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x00,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x00,0x00,0x71,0x00,0x00,0x00,0x00,0x71,0x00,0x71,0x00,0x71,0x00,0x71,0x00,0x00,0x00,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x00,0x00,0x00,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x00,0x00,0x00,0x71,0x71,0x71,0xEA
+	
+	
+	over:	.byte
+	0x00,0x00,0x00,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x00,0x00,0x71,0x00,0x00,0x00,0x00,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x71,0x00,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x00,0x00,0x00,0x00,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x00,0x00,0x00,0x71,0x00,0x71,0x00,0x71,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x71,0x71,0x00,0x71,0x71,0x00,0x71,0x00,0x71,0x71,0x00,0x71,0x71,0x71,0x00,0x71,0x71,0x00,0x71,0x71,0x71,0x71,0xE1,
+	0x00,0x00,0x00,0x00,0x71,0x71,0x71,0x00,0x71,0x71,0x71,0x00,0x00,0x00,0x71,0x00,0x71,0x71,0x00,0x71,0x71,0x71,0x71,0xEA
+	
+	overX:	.word	173
+	overY:	.word	50
+	
+	gameX:	.word	140
+	gameY:	.word	50
+	
+	posFlappyOverX:		.word	150
+	posFlappyOverY:		.word	90
+	
 	# VARIAVEIS DE GERENCIAMENTO DO DISPLAY
 	bitmap_address: .word 0xff000000
 	bitmap_width:   .word 320
@@ -40,11 +68,13 @@
 	
 	#obstaculo
 	tiposDeObstaculos:	.word	0,1,2,3,4
-	alturaDoTipo:		.word	15,30,45,60,75
+	alturaDoTipo:		.word	15,40,80,120,160
 	
-	velObstaculos:		.word	-10
+	velObstaculos:		.word	-8
 	obstaculosWidth:	.word	15
 	obstaculosCor:		.word	0x009933
+	
+	obstaculosCor_b:	.byte 0x58
 	
 	obstaculo1:		.word	0,0,0		#presente	||	tipo	||	pos_x
 	obstaculo2:		.word	0,0,0		#presente	||	tipo	||	pos_x
@@ -56,7 +86,7 @@
 	
 	posUltimoSpawn:		.word	0
 	
-	intervaloEntreSpawns:	.word	15
+	intervaloEntreSpawns:	.word	45
 	
 	
 	#inputs
@@ -65,7 +95,15 @@
 	teclaSpace:	.word	0x00000020
 	
 	
+	#inputs de270
+	buffer1:	.word	0x40000020
+	buffer2:	.word	0x40000024
 	
+	ativaTeclado:	.word	0x66666666
+
+
+	
+	#cores BBGGGRRR
 	#cores
 	
 	
@@ -83,16 +121,33 @@
 	amarelo_escuro:	.word 0xc7a210
 	boca:		.word 0xdd4110
 	
-
-
+	#cores BBGGGRRR
+	#cores byte
+	black_b:	.word 0x00
+	white_b:	.word 0xff
+	blue_b:		.word 0xC0
+	red_b:		.word 0x07
+	green_b:	.word 0x38
+	yellow_b:	.word 0x3f
+	
+	azul_fundo_b:	.word 0x9a
+	amarelo_geral_b:	.word 0x77
+	amarelo_claro_b:	.word 0xb7
+	amarelo_escuro_b:	.word 0x1d
+	boca_b:			.word 0x16
 .text
 
 
 main:
 	
 	init:	
-		j CLS_Pedreiro
-		#jal clearScreen2
+		jal clearScreen2
+		
+		
+		#ativar interrupções do teclado
+		li $t0,1
+		lw $t1,ativaTeclado
+		sw $t0,($t1)
 		
 		
 		li $t0,0
@@ -129,25 +184,45 @@ main:
 	
 	telaPerdeu:
 		jal clearScreen2
+		jal printGameOver
+		
+		#draw flappy
+		lw $a0,posFlappyOverX
+		lw $a1,posFlappyOverY
+		jal drawFlappy 
+	
+	telaPerdeuLoop:
 		
 		
-		#jal verificarInputSpace
+		#jal verificarInputSpaceDe2
 		
-		bne $v0,$zero,init
+		#bne $v0,$zero,init
 		
+		#j init
 		
+		#debug
+		#lw $t0,buffer1
+		#lw $a0,($t0)
+		#li $v0,1
+		#syscall
+		
+		#la $a0,nl
+		#li $v0,4
+		#syscall
+		
+		####
 		
 		jal wait
 		jal wait
 		jal wait
 	
-		j telaPerdeu
+		j telaPerdeuLoop
 	
 	
 	loop_principal:
 		#limpar a posiçao anterior do peixe
 		
-		lw $a0,azul_fundo
+		lb $a0,azul_fundo_b
 		lw $a1,P_width
 		lw $a2,P_height
 		lw $a3,P_posX
@@ -164,12 +239,19 @@ main:
 		jal atualizarFlagsSpawn
 		
 	
-		#jal clearScreen		#resetar o display
+
 		
 		
 		#handle de inputs
-		#jal verificarInput
+		#jal verificarInputSpaceDe2
+		#bne $zero,$v0,houveSpace
+		#j naoHouveSpace
 		
+		#houveSpace:
+		#jal applyForce
+		
+		
+		naoHouveSpace:
 		#verificar colisao
 		jal verificarColisao
 		
@@ -202,8 +284,19 @@ main:
 		#delay pra acertar um bom frame rate
 		jal wait
 		jal wait
-		
-		
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
+		jal wait
 		
 	
 	
@@ -213,6 +306,143 @@ main:
 	j exit
 	
 	#procedures
+	
+	#a0 == x ; a1 == y ; v0 == retorno
+	getAddressFromXY:
+		addi $sp,$sp,-20
+		sw $s0,($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		sw $ra,16($sp)
+		
+		move $s0,$a0
+		move $s1,$a1
+		
+		lw $s2,bitmap_width
+		
+		mult $s2,$s1
+		mflo $s3
+		
+		add $s3,$s3,$s0
+		
+		
+		lw $s2,bitmap_address
+		
+		add $v0,$s2,$s3
+		
+		lw $s0,($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		lw $ra,16($sp)
+		addi $sp,$sp,20
+		
+		
+		
+		jr $ra
+		
+	printGameOver:
+		addi $sp,$sp,-20
+		sw $s0,($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		sw $ra,16($sp)
+		
+		
+		#print game
+		lw $a0,gameX
+		lw $a1,gameY
+		
+		jal getAddressFromXY
+		
+		
+		
+		la $a0,game
+		move $a1,$v0
+		jal printme
+		
+		#print over
+		
+		lw $a0,overX
+		lw $a1,overY
+		
+		jal getAddressFromXY
+		
+		
+		
+		la $a0,over
+		move $a1,$v0
+		jal printme
+		
+		
+		lw $s0,($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		lw $ra,16($sp)
+		addi $sp,$sp,20
+		
+		
+		
+		jr $ra
+	
+	
+	#nao recebe nada, se for espaco retorna 1 em v0
+	verificarInputSpaceDe2:
+		addi $sp,$sp,-20
+		sw $s0,($sp)
+		sw $s1,4($sp)
+		sw $s2,8($sp)
+		sw $s3,12($sp)
+		sw $ra,16($sp)
+		
+		
+		
+		lw $s3,buffer2
+		lw $s0,buffer1
+		lw $s1,teclaSpace
+		
+		lw $s2,($s0)
+		
+		
+		### fazer do jeito da syscall
+		li $v0,12
+		syscall
+		
+		move $s2,$v0
+		
+		beq $s2,$s1,inputCorreto2
+		j inputNaoCorreto2
+		
+		inputCorreto2:
+		li $v0,1
+		sw $zero,($s0)
+		
+		j out2
+		
+		inputNaoCorreto2:
+		li $v0,0
+		
+		j out2
+		
+		out2:
+		lw $s0,($sp)
+		lw $s1,4($sp)
+		lw $s2,8($sp)
+		lw $s3,12($sp)
+		lw $ra,16($sp)
+		addi $sp,$sp,20
+		
+		
+		
+		jr $ra
+	
+	
+	
+	
+	
 	
 	#nao recebe nada, se for espaco retorna 1 em v0
 	verificarInputSpace:
@@ -232,21 +462,21 @@ main:
 		lw $s2,($s0)
 		
 		
-		beq $s2,$s1,inputCorreto2
-		j inputNaoCorreto2
+		beq $s2,$s1,inputCorreto3
+		j inputNaoCorreto3
 		
-		inputCorreto2:
+		inputCorreto3:
 		li $v0,1
 		sw $zero,($s0)
 		
-		j out2
+		j out3
 		
-		inputNaoCorreto2:
+		inputNaoCorreto3:
 		li $v0,0
 		
-		j out2
+		j out3
 		
-		out2:
+		out3:
 		lw $s0,($sp)
 		lw $s1,4($sp)
 		lw $s2,8($sp)
@@ -475,8 +705,20 @@ main:
 		fazDo1:
 		la $s1,obstaculo1
 		
+		#random de tipos de obstaculos
+		li $v0,41
+		syscall
+		
+		li $t0,5	#5 tipos
+		
+		div $a0,$t0
+		
+		mfhi $t3
+		
+		### fim random
+		
 		li $t0,1		#presente
-		li $t1,0		#tipo
+		move $t1,$t3		#tipo
 		lw $t2,bitmap_width	#posicao x
 		
 		sw $t0,0($s1)
@@ -489,8 +731,20 @@ main:
 		
 		la $s1,obstaculo2
 		
+		#random de tipos de obstaculos
+		li $v0,41
+		syscall
+		
+		li $t0,5	#5 tipos
+		
+		div $a0,$t0
+		
+		mfhi $t3
+		
+		### fim random
+		
 		li $t0,1		#presente
-		li $t1,2		#tipo
+		move $t1,$t3		#tipo
 		lw $t2,bitmap_width	#posicao x
 		
 		sw $t0,0($s1)
@@ -742,11 +996,11 @@ main:
 		
 		beq $a0,$zero,setarClear1
 		
-		lw $t2,obstaculosCor
+		lb $t2,obstaculosCor_b
 		j saiClear1
 		
 		setarClear1:
-		lw $t2,azul_fundo
+		lb $t2,azul_fundo_b
 		
 		saiClear1:
 		
@@ -830,11 +1084,11 @@ main:
 		
 		beq $a0,$zero,setarClear2
 		
-		lw $t2,obstaculosCor
+		lb $t2,obstaculosCor_b
 		j saiClear2
 		
 		setarClear2:
-		lw $t2,azul_fundo
+		lw $t2,azul_fundo_b
 		
 		saiClear2:
 		
@@ -1077,10 +1331,10 @@ main:
 		mflo $t1
 		
 		add $t2,$t1,$a1		#t2 = (width * y) + x
-		sll $t2,$t2,2		#t2 = 4 * ((width * y) + x)
+		#sll $t2,$t2,2		#t2 = 4 * ((width * y) + x)
 		lw $t3,bitmap_address
 		add $t4,$t3,$t2		#t4 = address + 4 * ((width * y) + x)
-		sw $a0,0($t4)
+		sb $a0,0($t4)
 		
 		lw $ra,0($sp)
 		lw $a0,4($sp)
@@ -1201,7 +1455,7 @@ main:
 		move $t0,$a0
 		move $t1,$a1
 		drawPixelsPretos:
-			lw $a0,black
+			lb $a0,black_b
 			
 			#pixels
 			addi $a1,$t0,0
@@ -1469,7 +1723,7 @@ main:
 			
 		
 		drawPixelsBoca:
-			lw $a0,boca
+			lb $a0,boca_b
 			
 			
 			#pixels
@@ -1506,7 +1760,7 @@ main:
 			###### fim boca ######
 			
 		drawPixelsAmareloClaro:
-			lw $a0,amarelo_claro
+			lb $a0,amarelo_claro_b
 			
 			#pixels
 			addi $a1,$t0,1
@@ -1584,7 +1838,7 @@ main:
 			jal drawPixel
 			
 		drawPixelsAmareloEscuro:
-			lw $a0,amarelo_escuro
+			lb $a0,amarelo_escuro_b
 			
 			#pixels
 			addi $a1,$t0,1
@@ -1683,7 +1937,7 @@ main:
 			
 		
 		drawPixelsOlho:
-			lw $a0,white
+			lb $a0,white
 			
 			#pixels
 			addi $a1,$t0,13
@@ -1728,7 +1982,7 @@ main:
 		drawAmareloGeral:
 		
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,4
 			li $a2,3
 			addi $a3,$t0,6
@@ -1736,7 +1990,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,5
 			li $a2,1
 			addi $a3,$t0,8
@@ -1744,7 +1998,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,1
 			li $a2,6
 			addi $a3,$t0,12
@@ -1752,7 +2006,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,1
 			li $a2,3
 			addi $a3,$t0,13
@@ -1760,7 +2014,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,2
 			li $a2,2
 			addi $a3,$t0,6
@@ -1768,7 +2022,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,2
 			li $a2,3
 			addi $a3,$t0,2
@@ -1776,7 +2030,7 @@ main:
 			jal drawRetangulo
 			
 			#drawRetangulo
-			lw $a0,amarelo_geral
+			lb $a0,amarelo_geral_b
 			li $a1,1
 			li $a2,3
 			addi $a3,$t0,5
@@ -1918,7 +2172,7 @@ main:
 		
 		li $t0,0
 		li $t1,0
-		lw $t2,azul_fundo
+		lw $t2,azul_fundo_b
 		lw $t3,bitmap_width
 		lw $t4,bitmap_height
 		
@@ -2011,7 +2265,7 @@ main:
 		sw $s0,20($sp)
 		#a0 == cor ; a1 == width ; a2 == height ; a3 == x ; s0 == y
 		
-		lw $a0,azul_fundo
+		lb $a0,azul_fundo_b
 		lw $a1,bitmap_width
 		lw $a2,bitmap_height
 		li $a3,0
@@ -2030,18 +2284,93 @@ main:
 		jr $ra
 		
 		
+	## --- PRINTME procedure ---
+	#  It's supposed to print a MIF on the screen, taking a designed color as transparent.
+	#		@author Yurick Hauschild - 2014/1
+	#
+	#	$a0: obj - The address to the .data object, given the following standard:
+	#		It's an array of bytes, each byte representing a color;
+	#		The 0x71 color marks 7ransparenc1;
+	#		The 0xE1 color marks the end of 1ine;
+	#		The 0xEA color marks the end of the array;
+	#		The array is large enougth to fit the screen.
+	#	$a1: scraddr - The address to the point in the VGA memory that the image should be displayed.
+
+	printme:
+
+		# Store-vars step
+		addi $sp, $sp, -36
+		sw $t0, 0($sp)  # startVGA
+		sw $t1, 4($sp)  # endVGA
+		sw $t2, 8($sp)  # cursorAddr
+		sw $t3, 12($sp) # cursorData
+		sw $t4, 16($sp) # Transparency
+		sw $t5, 20($sp) # End Line
+		sw $t6, 24($sp) # End Array
+		sw $t7, 28($sp) # VGAcursor
+		sw $t8, 32($sp) # LineFeed
+	
+		lui $t0, 0xFF00 # $t0 is now the starting address of VGA
+	
+		lui $t1, 0xFF01
+		ori $t1, $t1, 0x2C00 # $t1 is now the ending address of VGA
+	
+		li $t4, 0x71 # $t4 is now the code to transparency
+		li $t5, 0xE1 # $t5 is now the code to End-Line
+		li $t6, 0xEA # $t6 is now the code to End-Array
+	
+		blt $a1, $t0, end_printme # scraddr < startVGA ? exit : continue
+		bge $a1, $t1, end_printme # scraddr >= endVGA ? exit : continue
+	
+		add $t2, $a0, $zero # $t2 is now a copy of obj
+		add $t7, $a1, $zero # $t7 is now a copy of scraddr
+		add $t8, $a1, 0x140 # address of next line.
+	
+	line_printme:
+	
+		lbu $t3, 0($t2) # load data in cursorAddr on $t3
+	
+		beq $t3, $t6, end_printme # if endArray, let's get out!
+		beq $t3, $t5, endline_printme # if endLine, let's jump!
+		beq $t3, $t4, blind_printme # if transparency, let's get blind!
+	
+		sb $t3, 0($t7) # print pixel in VGAddress
+	
+	blind_printme:
+
+		addi $t7, $t7, 1 # go to next pixel in screen. 1 in ALTERA, 4 in MARS
+		addi $t2, $t2, 1 # go to next pixel in array
+	
+		j line_printme
+
+	endline_printme:
+
+		add $t7, $t8, $zero # jump line.
+		addi $t8, $t8, 0x140 # recalculate line feed
+		addi $t2, $t2, 1 # gogo next pixel
+		j line_printme
+	
+	end_printme:
+
+		# Restore-vars step
+		lw $t0, 0($sp)
+		lw $t1, 4($sp)
+		lw $t2, 8($sp)
+		lw $t3, 12($sp)
+		lw $t4, 16($sp)
+		lw $t5, 20($sp)
+		lw $t6, 24($sp)
+		lw $t7, 28($sp)
+		lw $t8, 32($sp)
+		addi $sp, $sp, 36
+	
+		jr $ra # byebye
+
+		
 	exit:
 		li $v0,10
 		syscall
+		
 
-CLS_Pedreiro:
-	lui $t0, 0xFF00
-	la $t1, 0xFF012C00
-	
-	beq $t0, $t1, END_CLS_Pedreiro
-	sb $t2, 0($t0)
-	addi $t0, $t0, 1
-	j CLS_Pedreiro
-END_CLS_Pedreiro:
-	fim: j fim
+		
 	
