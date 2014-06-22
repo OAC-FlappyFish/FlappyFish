@@ -8,14 +8,14 @@
 
 % Title Page
 \title{Universidade de Brasília \\ Organização e Arquitetura de Computadores \ \\ Turma A - Prof. Marcus Vinicius Lamar \\ \textbf{Projeto Aplicativo} - Relatório Técnico   - Grupo \textbf{5} }
-\author{João Vitor A.Ribeiro - 12/0014491\\João Henrique Sousa - 11/0014171\\Pedro Paulo Struck Lima - 11/0073983\\Yurick Hauschild Caetano da Costa - 12/0024136}
+\author{João Vitor A.Ribeiro - 12/0014491\\Yurick Hauschild Caetano da Costa - 12/0024136\\João Henrique Sousa - 11/0014171\\Pedro Paulo Struck Lima - 11/0073983}
 
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-{Relatório do projeto final da disciplina \textbf{Organização e Arquitetura e Computadores} da Universidade de Brasília realizado no 1º semestre de 2014. Desenvolver um jogo estilo \textit {Flappy Bird} utilizando o processador MIPS Uniciclo v6 fornecido e incrementado ao longo do curso para implementação em FPGA Altera DE2-70.} \\
+{Relatório do projeto final da disciplina \textbf{Organização e Arquitetura e Computadores} da Universidade de Brasília realizado no 1º semestre de 2014. Desenvolver um jogo estilo \textit {Flappy Bird} utilizando o processador MIPS Pipeline v4 fornecido e incrementado ao longo do curso para implementação em FPGA Altera DE2-70.} \\
 
 \keywords{flappy,bird,mips,assembly,fpga}
 
@@ -24,32 +24,91 @@
 
 
 \chapter{Introdução}
-{}
+\section{Arquitetura MIPS \& Hardware}
+\paragraph{}{MIPS  - \textit{Microprocessor without interlocked pipeline stages}  é uma simples, reduzida, e altamente escalonável arquitetura \textbf{RISC}. Uma arquitetura \textbf{RISC} é uma arquitetura que possui um conjunto reduzido de instruções. Ao longo dos anos a arquitetura MIPS evoluiu e incorporou novas tecnologias, desenvolvendo um ambiente robusto e um apoio industrial considerável. Algumas de suas características principais são: alto número de registradores, número reduzido de instruções e o aspecto do seu conjunto de instruções, juntamente com a visibilidade do atraso dos estágios de \textit{pipeline}.}\cite {IT14}
+
+\paragraph{}{Uma implementação de um microprocessador MIPS de $ 32 $ bits será utilizada como base de \textit{Hardware}. Esta base será constituída da implementação na linguagem \textbf{Verilog}, uma linguagem de descrição de hardware,  em uma placa \textbf{FPGA} - \textit{Field-programmable gate array }, um circuito integrado projetado para ser configurado e programado por um usuário.}
+
+\section{Flappy Bird}
+{Flappy Bird é um jogo criado por Dong Nguyen em 2013 por meio do estúdio \textit{.GEARS.}, um estúdio de desenvolvimento de jogos independente localizado no Vietnam. \cite{FBIRD14} É proposta a codificação e implantação de um jogo com objetivos, lógica e interface gráfica semelhantes. É possível visualizar uma amostra do jogo no endereço eletrônico \url{(http://flappybird.io/)}.
+
 
 
 \chapter{Objetivos}
 \begin {itemize}
-\item Aplicação de conhecimentos e habilidades adquiridas durante o curso da disciplina \textbf{Organização e Arquitetura e Computadores} no desenvolvimento de um jogo similar ao \textit {Flappy Bird} {(http://flappybird.io/)}.
+\item Aplicação de conhecimentos e habilidades adquiridas durante o curso da disciplina \textbf{Organização e Arquitetura e Computadores} no desenvolvimento de um jogo similar ao \textit {Flappy Bird}.
+\item Utilização de conhecimentos de programação em linguagem \textit{Assembly MIPS} - \textit{Software (Arquitetura)}
+\item Utilização de conceitos de projetos básicos de microprocessadores -\textit{Hardware (Organização)}
 \end{itemize}
 
 \chapter{Metodologia}
-{metodo de desenvolvimento,ferramentas utilizadas,divisão de trabalho}
+\section{Metodologia utilizada}
+\paragraph{}{}
+{Foi adotada uma metodologia de desenvolvimento iterativo e incremental. Reuniões foram realizadas entre os membros do grupo para definição do planejamento, projeto e acompanhamento da implantação.}
+\section{Divisão de tarefas}
+\paragraph{}{}
+{Foi adotada para a execução do projeto uma metodologia de segregação de funções entre os membros do grupo. Esta divisão se deu pela separação nas seguintes áreas:}
+\begin{enumerate}
+\item Área de organização do microprocessador (MIPS Pipeline) utilizado e \textit{hardware};
+\item Área de codificação, mídia e \textit{software};
+\item Documentação;
+\item Interfaceamento, testes e garantia de qualidade.
+\end{enumerate}
+
+
+
+
+\section{Ferramentas utilizadas}
+
+\subsection{Kit de desenvolvimento DE2-70}
+\paragraph{}{Utilização do kit de desenvolvimento DE2-70 da Altera® que inclui:
+\begin{itemize}
+\item DE2-70
+\item Cabo USB para programação e controle da FPGA
+\item Fonte de alimentação 12V DC
+\end{itemize} }
+
+\subsection{Simulador MARS}
+\paragraph{}{Utilização da ferramenta MARS - \textit{MIPS Assembler and Runtime Simulator} desenvolvida pela \textbf{Missoury State University}.\cite{MARS13}. Será utilizada a versão 4.4, com extensões adicionadas por contribuidores ao redor do mundo.}
+
+\subsection{Software Quartus II Web Edition}
+\paragraph{}{Utilização do software de projeto e design em FPGA's desenvolvido pela Altera® na versão $ 13.1 $ para  para implementação e implantação do processador MIPS. \cite {QUARTUS14}}
+
+\subsection{Sistema de controle de versão Git}
+\paragraph{}{Utilização da ferramenta Git para efetuar controle de versão na área de codificação. \cite {GIT14}}
 
 \chapter{Problemas encontrados}
-{asdasas? adsasda.}
+\paragraph{}{Problemas encontrados foram divididos conforme especificado na divisão proposta na seção (3.2.):}
+
+\section{Organização do microprocessador e \textit{hardware}}
+\section{Codificação, mídia e \textit{software}}
+\section{Documentação}
+\section{Interfaceamento, testes e garantia de qualidade}
+
 
 \chapter{Resultados obtidos}
-{sdaslkdasdçkasd}
+\paragraph{}{Pode-se dizer que isso isso e isso, e os resultados foram isso isso e isso. \\
 
-\chapter{Considerações finais}
-{foi muito legal trabalhar no projeto}
+--LINK VÍDEO--}
 
-\chapter{Trabalhos futuros}
-{Utilização dos conceitos utilizados na vida pessoal,academica}
+\chapter {Considerações finais}
+\section{Conclusões}
+\section{Trabalhos futuros}
+\paragraph{}{Não há planos para trabalhos futuros envolvendo as problemáticas abordadas nesse trabalho.}
 
 \begin{thebibliography}{1}
-\bibitem NJGNFJHNFKGNK
-\bibitem RETERTETEW
+\bibitem[IT14]{IT14} Imagination Technologies.
+\textit {MIPS Architectures} 2014. Endereço eletrônico. Acesso em 22 jun, 2014 Disponível em \url {http://www.imgtec.com/mips/architectures/}
+
+\bibitem[FBIRD14]{FBIRD14}(Vietnamita) Thanh Nien. Chàng trai viet game Flappy Bird gây sõt toàn cãu". Acesso em 22 jun, 2014. Disponível em \url{http://www.thanhnien.com.vn/pages/20140206/chang-trai-viet-game-flappy-bird-gay-sot-toan-cau.aspx}
+
+\bibitem[MARS13]{MARS13} Missouri State University. \textit{MARS (MIPS Assembler and Runtime Simulator): An IDE for MIPS Assembly Language Programming}. Endereço eletrônico. Acesso em 22 jun, 2014. Disponível em 
+\url{http://courses.missouristate.edu/kenvollmar/mars/}
+
+\bibitem[QUARTUS14]{QUARTUS14} Altera Corporation. \textit{Quartus II Web Edition}. Endereço eletrônico. Acesso em 22 jun, 2014. Disponível em 
+\url{http://www.altera.com/products/software/quartus-ii/web-edition/qts-we-index.html}
+
+\bibitem[GIT14]{GIT14} \textit{Git}. Endereço eletrônico. Acesso em 22 jun, 2014. Disponível em \url{http://git-scm.com/}
 \end{thebibliography}
 
 
